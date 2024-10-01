@@ -1,0 +1,64 @@
+Sub CreatePPTWithImagesAndVoice()
+    Dim ppt As Presentation
+    Dim slide As slide
+    Dim imgPath As String
+    Dim imageFile As String
+    Dim audioFile As String
+    Dim i As Integer
+    Dim shape As shape
+
+    ' Folder paths for images and audio
+    Dim imgFolder As String
+    Dim audioFolder As String
+    imgFolder = "C:\Path\To\Images\"  ' Change this path to the folder where your images are stored
+    audioFolder = "C:\Path\To\Audio\"  ' Change this path to the folder where your audio files are stored
+
+    ' Initialize a new presentation
+    Set ppt = ActivePresentation
+
+    ' Loop to create 20 slides with different images and animations
+    For i = 1 To 20
+        ' Add a new slide with a blank layout
+        Set slide = ppt.Slides.Add(i, ppLayoutBlank)
+        
+        ' Image file name (assuming files are named as image1.jpg, image2.jpg, etc.)
+        imageFile = imgFolder & "image" & i & ".jpg"
+        
+        ' Insert the image onto the slide
+        Set shape = slide.Shapes.AddPicture(FileName:=imageFile, _
+                                            LinkToFile:=msoFalse, _
+                                            SaveWithDocument:=msoTrue, _
+                                            Left:=100, Top:=100, _
+                                            Width:=500, Height:=300)
+                                            
+        ' Add animation to the image (e.g., fade in)
+        slide.TimeLine.MainSequence.AddEffect shape, _
+                                              msoAnimEffectFade, _
+                                              msoAnimTriggerAfterPrevious, _
+                                              Index:=1
+        
+        ' Add voice narration to the slide
+        ' Assuming the audio files are named as audio1.wav, audio2.wav, etc.
+        audioFile = audioFolder & "audio" & i & ".wav"
+        slide.Shapes.AddMediaObject2 FileName:=audioFile, _
+                                     LinkToFile:=msoFalse, _
+                                     SaveWithDocument:=msoTrue, _
+                                     Left:=0, Top:=0
+        
+        ' Set the slide transition time to automatically move to the next slide
+        slide.SlideShowTransition.AdvanceOnTime = msoTrue
+        slide.SlideShowTransition.AdvanceTime = 5  ' Set slide duration to 5 seconds
+    Next i
+    
+    ' Start the slide show from the first slide
+    With ppt.SlideShowSettings
+        .StartingSlide = 1
+        .EndingSlide = ppt.Slides.Count
+        .AdvanceMode = ppSlideShowUseSlideTimings
+        .LoopUntilStopped = msoFalse
+        .RangeType = ppShowAll
+        .StartingSlide = 1
+        .Run
+    End With
+    
+End Sub
